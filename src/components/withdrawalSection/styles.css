@@ -1,0 +1,49 @@
+.withdrawals-section {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .withdrawals-section h2 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .withdrawals-section table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .withdrawals-section th,
+  .withdrawals-section td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+  }
+  
+  .withdrawals-section th {
+    background-color: #6c58bf;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .withdrawals-section td {
+    background-color: #ffffff;
+  }
+  
+  .withdrawals-section tr:nth-child(even) td {
+    background-color: #f2f2f2;
+  }
+  
+  .withdrawals-section tr:hover td {
+    background-color: #e0e0e0;
+  }
+  
+  .error-message {
+    color: red;
+    font-weight: bold;
+    margin: 20px 0;
+  }
+  
