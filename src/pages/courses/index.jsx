@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import Modal from "react-modal";
 import {
   loadClasses,
   enrollClass,
@@ -9,9 +10,13 @@ import {
 } from "../../data_source/redux/classSlice/slice";
 import "./courses.css";
 
+Modal.setAppElement('#root');
+
 const CoursesPage = () => {
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate(); 
   const { list: courses, enrolled } = useSelector((state) => state.classes);
@@ -59,6 +64,23 @@ const CoursesPage = () => {
     course.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const openModal = async (course) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/classes/${course._id}`);
+      const coursefiles = await axios.get(`http://localhost:8080/files/class/${course._id}`)
+      response.data.files = coursefiles.data;
+      setSelectedCourse(response.data);
+      setModalIsOpen(true);
+    } catch (err) {
+      setError("Failed to fetch course details. Please try again.");
+    }
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setSelectedCourse(null);
+  };
+
   return (
     <div className="courses-page">
       <h2>Available Courses</h2>
@@ -71,18 +93,17 @@ const CoursesPage = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="search-input"
         />
-      <button onClick={() => navigate('/dashboard')}>My Courses</button> 
+        <button onClick={() => navigate('/dashboard')}>My Courses</button> 
       </div>
       <div className="courses-list">
         {filteredCourses.length > 0 ? (
           filteredCourses.map((course) => (
-            <div key={course._id} className="course-card">
-              <img src={course.image} alt={course.name} className="course-image" />
+            <div key={course._id} className="course-card" onClick={() => openModal(course)}>
               <div className="course-details">
                 <h3>{course.name}</h3>
                 <p>{course.description}</p>
                 {!isEnrolled(course._id) ? (
-                  <button onClick={() => handleEnroll(course._id)}>Enroll</button>
+                  <button onClick={(e) => {e.stopPropagation(); handleEnroll(course._id);}}>Enroll</button>
                 ) : (
                   <button disabled>Already Enrolled</button>
                 )}
@@ -93,6 +114,31 @@ const CoursesPage = () => {
           <p>No courses found</p>
         )}
       </div>
+      {selectedCourse && (
+        <Modal isOpen={modalIsOpen} onRequestClose={closeModal} contentLabel="Course Details">
+          <h2>{selectedCourse.name}</h2>
+          <p>{selectedCourse.description}</p>
+          <h3>Files</h3>
+          {selectedCourse.files && selectedCourse.files.length > 0 ? (
+            <ul>
+              {selectedCourse.files.map((file) => (
+                <li key={file._id}>
+                  {isEnrolled(selectedCourse._id) ? (
+                    <a href={`http://localhost:8080/${file.path.replace(/\\/g, '/')}`} target="_blank" rel="noopener noreferrer">
+                      {file.filename}
+                    </a>
+                  ) : (
+                    <span>{file.filename}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No files available</p>
+          )}
+          <button onClick={closeModal}>Close</button>
+        </Modal>
+      )}
     </div>
   );
 };

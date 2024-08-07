@@ -46,28 +46,32 @@ const CoursesSection = ({ userId }) => {
   return (
     <section className="courses-section">
       <h2>Your Courses</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Course Name</th>
-            <th>Enrollment Date</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {enrolledCourses.map((enrollment) => (
-            <tr key={enrollment._id}>
-              <td>{enrollment.classId.name}</td>
-              <td>{new Date(enrollment.enrollmentDate).toLocaleDateString()}</td>
-              <td>
-                <button onClick={() => handleWithdraw(enrollment.classId._id)} className="withdraw-btn">
-                  <FaTrash />
-                </button>
-              </td>
+      {enrolledCourses.length === 0 ? (
+        <p>No enrolled courses available.</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Course Name</th>
+              <th>Enrollment Date</th>
+              <th>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {enrolledCourses.map((enrollment) => (
+              <tr key={enrollment._id}>
+                <td>{enrollment.classId ? enrollment.classId.name : 'N/A'}</td>
+                <td>{new Date(enrollment.enrollmentDate).toLocaleDateString()}</td>
+                <td>
+                  <button onClick={() => handleWithdraw(enrollment.classId ? enrollment.classId._id : null)} className="withdraw-btn">
+                    <FaTrash />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </section>
   );
 };
